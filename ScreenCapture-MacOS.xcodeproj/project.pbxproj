@@ -11,6 +11,11 @@
 		7587E949251DFAF300CC99EE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587E948251DFAF300CC99EE /* ViewController.swift */; };
 		7587E94B251DFAF500CC99EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7587E94A251DFAF500CC99EE /* Assets.xcassets */; };
 		7587E94E251DFAF500CC99EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7587E94C251DFAF500CC99EE /* Main.storyboard */; };
+		7587E95D251DFB6200CC99EE /* AMUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587E958251DFB6200CC99EE /* AMUtil.swift */; };
+		7587E95E251DFB6200CC99EE /* AMScreenWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587E959251DFB6200CC99EE /* AMScreenWriter.swift */; };
+		7587E95F251DFB6200CC99EE /* AMExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587E95A251DFB6200CC99EE /* AMExtension.swift */; };
+		7587E960251DFB6200CC99EE /* AMRecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587E95B251DFB6200CC99EE /* AMRecoder.swift */; };
+		7587E961251DFB6200CC99EE /* AMCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587E95C251DFB6200CC99EE /* AMCapture.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +26,11 @@
 		7587E94D251DFAF500CC99EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		7587E94F251DFAF500CC99EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7587E950251DFAF500CC99EE /* ScreenCapture_MacOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScreenCapture_MacOS.entitlements; sourceTree = "<group>"; };
+		7587E958251DFB6200CC99EE /* AMUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AMUtil.swift; sourceTree = "<group>"; };
+		7587E959251DFB6200CC99EE /* AMScreenWriter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AMScreenWriter.swift; sourceTree = "<group>"; };
+		7587E95A251DFB6200CC99EE /* AMExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AMExtension.swift; sourceTree = "<group>"; };
+		7587E95B251DFB6200CC99EE /* AMRecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AMRecoder.swift; sourceTree = "<group>"; };
+		7587E95C251DFB6200CC99EE /* AMCapture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AMCapture.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +63,7 @@
 		7587E945251DFAF300CC99EE /* ScreenCapture-MacOS */ = {
 			isa = PBXGroup;
 			children = (
+				7587E957251DFB6200CC99EE /* RecoderFiles */,
 				7587E946251DFAF300CC99EE /* AppDelegate.swift */,
 				7587E948251DFAF300CC99EE /* ViewController.swift */,
 				7587E94A251DFAF500CC99EE /* Assets.xcassets */,
@@ -61,6 +72,18 @@
 				7587E950251DFAF500CC99EE /* ScreenCapture_MacOS.entitlements */,
 			);
 			path = "ScreenCapture-MacOS";
+			sourceTree = "<group>";
+		};
+		7587E957251DFB6200CC99EE /* RecoderFiles */ = {
+			isa = PBXGroup;
+			children = (
+				7587E958251DFB6200CC99EE /* AMUtil.swift */,
+				7587E959251DFB6200CC99EE /* AMScreenWriter.swift */,
+				7587E95A251DFB6200CC99EE /* AMExtension.swift */,
+				7587E95B251DFB6200CC99EE /* AMRecoder.swift */,
+				7587E95C251DFB6200CC99EE /* AMCapture.swift */,
+			);
+			path = RecoderFiles;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -132,7 +155,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7587E960251DFB6200CC99EE /* AMRecoder.swift in Sources */,
+				7587E95F251DFB6200CC99EE /* AMExtension.swift in Sources */,
 				7587E949251DFAF300CC99EE /* ViewController.swift in Sources */,
+				7587E961251DFB6200CC99EE /* AMCapture.swift in Sources */,
+				7587E95D251DFB6200CC99EE /* AMUtil.swift in Sources */,
+				7587E95E251DFB6200CC99EE /* AMScreenWriter.swift in Sources */,
 				7587E947251DFAF300CC99EE /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -274,16 +302,17 @@
 				CODE_SIGN_ENTITLEMENTS = "ScreenCapture-MacOS/ScreenCapture_MacOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 49UQ982978;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "ScreenCapture-MacOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ScreenCapture-MacOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -295,16 +324,17 @@
 				CODE_SIGN_ENTITLEMENTS = "ScreenCapture-MacOS/ScreenCapture_MacOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 49UQ982978;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "ScreenCapture-MacOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ScreenCapture-MacOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
