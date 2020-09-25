@@ -16,22 +16,6 @@ enum AMRecorderError: Error {
   case unknownDataOutputType
 }
 
-struct URLIterator : IteratorProtocol {
-  typealias Element = URL
-  private var counter: Int
-  private var directory: URL
-
-  init(directory: URL) {
-    counter = 0
-    self.directory = directory
-  }
-
-  mutating func next() -> Element? {
-    let component = "\(counter).mp4"
-    counter += 1
-    return directory.appendingPathComponent(component)
-  }
-}
 
 class AMRecorder {
   private var cropRect: CGRect?

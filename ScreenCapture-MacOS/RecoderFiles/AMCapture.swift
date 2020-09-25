@@ -7,6 +7,19 @@
 import Foundation
 import AVFoundation
 
+//struct URLIterator  {
+//  private var directory: URL
+//
+//  init(directory: URL) {
+//    self.directory = directory
+//  }
+//
+//    mutating func next(count:Int) -> Element? {
+//    let component = "\(count).mp4"
+//    return directory.appendingPathComponent(component)
+//  }
+//}
+
 final class AMCapture : NSObject {
   let duration: Double
   var hasStarted = false
@@ -36,8 +49,10 @@ final class AMCapture : NSObject {
   fileprivate let audioOutput: AVCaptureAudioDataOutput?
   fileprivate let videoOutput: AVCaptureVideoDataOutput
   let videoEncoder: AMScreenWriter
-  var urlIterator : URLIterator
-
+//  var urlIterator : URLIterator
+  var counter: Int
+  var urlIterator: URL
+    
   fileprivate let width: Int
   fileprivate let height: Int
 
@@ -58,8 +73,9 @@ final class AMCapture : NSObject {
     self.width = width
     self.height = height
 
-    self.urlIterator = URLIterator(directory: directory)
-
+    self.urlIterator = directory
+    counter = 0
+    
     session = AVCaptureSession()
 
     if session.canAddInput(videoInput) {
@@ -131,10 +147,14 @@ final class AMCapture : NSObject {
                                           repeats: false)
     }
   }
+  func next(count:Int) -> URL{
+    let component = "\(count).mp4"
+    return self.urlIterator.appendingPathComponent(component)
+  }
 
   @objc private func startRecordingToNext() {
-    let url = urlIterator.next()!
-
+    let url = self.next(count: counter)
+    counter += 1
     do {
       try videoEncoder.startWriting(url: url)
     } catch {

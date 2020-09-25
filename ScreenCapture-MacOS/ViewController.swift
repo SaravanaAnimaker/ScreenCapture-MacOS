@@ -155,19 +155,20 @@ class ViewController: NSViewController {
             printErr("Error" as! Error)
         }
         recorder11.onStart = {
-          printWithPrepend("Started recording...")
+          printWithPrepend("[status:STRATED]")
 
         }
 
         recorder11.onFinish = {
-          printWithPrepend("Finished recording...")
+            printWithPrepend("[status:END,totalChunks:\(self.recorder11.capture.counter-1)]")
         }
 
         recorder11.onWrite = { (url: URL) -> Void in
-            print(url.path)
+            printWithPrepend("[status:PROGRESS,chunkNumber:\(self.recorder11.capture.counter),location:\(url.path)]")
         }
 
         recorder11.onError = {(error:Error) -> Void in
+            printWithPrepend("[status:ERROR]")
             self.recorder11 = nil
         }
 
