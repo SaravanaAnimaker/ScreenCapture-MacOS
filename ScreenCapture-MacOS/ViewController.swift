@@ -12,6 +12,7 @@ struct RecordingOptions: Decodable {
   let avgBitRate: Int?
   let fps: Int?
   let camOnly: Bool?
+  let recordInMono: Bool?
   let cropRect: CGRect?
   let width: Int?
   let height: Int?
@@ -54,8 +55,9 @@ class ViewController: NSViewController {
             //        }
             let displayId = CGMainDisplayID()
             let cropRect: CGRect = CGRect.null
-            let camOnly = true
+            let camOnly = false
             let mute = false
+            let recordInMono = false
             let displayWidth = CGDisplayPixelsWide(displayId)
             let displayHeight = CGDisplayPixelsHigh(displayId)
             var width: Int = 0
@@ -143,6 +145,7 @@ class ViewController: NSViewController {
                                         width: width,
                                         showCursor: showCursor,
                                         highlightClicks: highlightClicks,
+                                        recordInMono: recordInMono,
                                         displayID: displayId,
                                         audioDevice: audioDevice,
                                         videoDevice: videoDevice,

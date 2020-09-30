@@ -44,7 +44,7 @@ class AMScreenWriter {
   var onFinish: (() -> Void)?
   var onWrite: ((URL) -> Void)?
 
-  init(_ width: Int,_ height: Int,_ avgBitRate: Int, fps: Int) {
+  init(_ width: Int,_ height: Int,_ avgBitRate: Int, fps: Int,recordInMono: Bool) {
     hasStarted = false
 
     videoOutputSettings = [
@@ -60,7 +60,7 @@ class AMScreenWriter {
     audioOutputSettings = [
       AVFormatIDKey: kAudioFormatMPEG4AAC,
       AVSampleRateKey: 44100,
-      AVNumberOfChannelsKey: 2
+      AVNumberOfChannelsKey: recordInMono ? 1 : 2
     ]
 
 

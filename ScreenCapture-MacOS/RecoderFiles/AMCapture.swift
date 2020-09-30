@@ -64,11 +64,12 @@ final class AMCapture : NSObject {
   public init(audioInput: AVCaptureInput?,
               videoInput: AVCaptureInput,
               avgBitRate: Int,
+              recordInMono: Bool,
               fps: Int,
               width: Int,
               height: Int,
               directory: URL,
-              duration: Double = 10) throws {
+              duration: Double) throws {
     self.duration = duration
     self.width = width
     self.height = height
@@ -124,7 +125,7 @@ final class AMCapture : NSObject {
       throw AMRecorderError.couldNotAddOutput
     }
 
-    videoEncoder = AMScreenWriter(width, height, avgBitRate, fps: fps)
+    videoEncoder = AMScreenWriter(width, height, avgBitRate, fps: fps,recordInMono: recordInMono)
 
     defer {
       audioOutput?.setSampleBufferDelegate(self, queue: captureQueue)
