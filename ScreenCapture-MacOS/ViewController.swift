@@ -22,7 +22,7 @@ struct RecordingOptions: Decodable {
   let audioDeviceId: String?
   let videoDeviceId: String?
   let outputPath: String?
-  let duration: CGFloat?
+  let duration: Double?
 }
 
 class ViewController: NSViewController {
@@ -34,145 +34,159 @@ class ViewController: NSViewController {
         // Do view setup here.
         self.clearTempFolder()
         do {
+            
+            //        {
+            //          "avgBitRate":      10000000,
+            //          "fps":             30,
+            //          "outputPath":      "/path/to/recording.mp4",
+            //          "camOnly":         false,
+            //          "cropRect":        { "x": 0, "y": 0, "width": 100, "height": 100 },
+            //          "width":           100,
+            //          "height":          100,
+            //          "showCursor":      true,
+            //          "highlightClicks": true,
+            //          "hdEnabled":       false,
+            //          "displayId":       "main",
+            //          "audioDeviceId":   "main",
+            //          "videoDeviceId":   "main",
+            //          "mute":            false,
+            //          "videoCodec":      "h264"
+            //        }
+            let displayId = CGMainDisplayID()
+            let cropRect: CGRect = CGRect.null
+            let camOnly = true
+            let mute = false
+            let displayWidth = CGDisplayPixelsWide(displayId)
+            let displayHeight = CGDisplayPixelsHigh(displayId)
+            var width: Int = 0
+            var height: Int = 0
+            let showCursor = true
+            let highlightClicks = false
+            let hdEnabled = false
+            var avgBitRate = 0
+            let fps = 60
+            let durationSecond : Double = 10
 
-//        {
-//          "avgBitRate":      10000000,
-//          "fps":             30,
-//          "outputPath":      "/path/to/recording.mp4",
-//          "camOnly":         false,
-//          "cropRect":        { "x": 0, "y": 0, "width": 100, "height": 100 },
-//          "width":           100,
-//          "height":          100,
-//          "showCursor":      true,
-//          "highlightClicks": true,
-//          "hdEnabled":       false,
-//          "displayId":       "main",
-//          "audioDeviceId":   "main",
-//          "videoDeviceId":   "main",
-//          "videoCodec":      "h264"
-//        }
-        var displayId = CGMainDisplayID()
-        var cropRect: CGRect = CGRect.null
-        var camOnly = false
-        let displayWidth = CGDisplayPixelsWide(displayId)
-        let displayHeight = CGDisplayPixelsHigh(displayId)
-
-        printWithPrepend("camOnly: \(camOnly)")
-
-        var width: Int = 0
-        var height: Int = 0
-
-        if cropRect != CGRect.null {
-          width = Int(cropRect.width)
-        } else if !camOnly {
-          width = displayWidth
-        }
-
-        if cropRect != CGRect.null {
-          height = Int(cropRect.height)
-        } else if !camOnly {
-          height = displayHeight
-        }
-
-        // ensure we're not scaling past bounds of screen
-        if !camOnly, let modeRef = CGDisplayCopyDisplayMode(displayId) {
-          if width > modeRef.pixelWidth {
-            width = modeRef.pixelWidth
-            printWithPrepend("supplied width > screen bounds \(width) > \(modeRef.pixelWidth) - scaling back")
-          }
-
-          if height > modeRef.pixelHeight {
-            height = modeRef.pixelHeight
-            printWithPrepend("supplied height > screen bounds \(height) > \(modeRef.pixelHeight) - scaling back")
-          }
-        }
-
-        var showCursor = true
-
-        printWithPrepend("showCursor: \(showCursor)")
-
-        var highlightClicks = false
-
-        printWithPrepend("highlightClicks: \(highlightClicks)")
-
-        let audioDevice = AVCaptureDevice.default(for: AVMediaType.audio)
-
-        if audioDevice != nil {
-          printWithPrepend("audioDevice: \(audioDevice!.localizedName)")
-        }
-
-        var hdEnabled = false
-
-        printWithPrepend("hdEnabled: \(hdEnabled)")
-
-        var avgBitRate = 0
-
-         if width > 0 && height > 0 {
-          avgBitRate = getBitRateForNumPixels(width * height)
-        }
-
-        var videoDevice = AVCaptureDevice.default(for: AVMediaType.video)
-            if !camOnly, let modeRef = CGDisplayCopyDisplayMode(displayId) {
-              if width > modeRef.pixelWidth {
-                width = modeRef.pixelWidth
-                printWithPrepend("supplied width > screen bounds \(width) > \(modeRef.pixelWidth) - scaling back")
-              }
-
-              if height > modeRef.pixelHeight {
-                height = modeRef.pixelHeight
-                printWithPrepend("supplied height > screen bounds \(height) > \(modeRef.pixelHeight) - scaling back")
-              }
-            }
-
-//        if camOnly, let pulledVideoDeviceId = recordingOptions.videoDeviceId {
-//          if let pulledVideoDevice = getCameraCaptureDeviceForElectronId(pulledVideoDeviceId) {
-//            videoDevice = pulledVideoDevice
-//          }
-//        } else {
-//          videoDevice = nil
-//        }
-
-        if videoDevice != nil {
-          printWithPrepend("videoDevice: \(videoDevice!.localizedName)")
-        }
-
-        var fps = 60
+            var videoDevice = AVCaptureDevice.default(for: AVMediaType.video)
+            var audioDevice = AVCaptureDevice.default(for: AVMediaType.audio)
 
             
-        recorder11 = try AMRecorder(outputPath: tempFile().path,
-        avgBitRate: avgBitRate,
-        fps: fps,
-        cropRect: cropRect,
-        height: height,
-        width: width,
-        showCursor: showCursor,
-        highlightClicks: highlightClicks,
-        displayID: displayId,
-        audioDevice: audioDevice,
-        videoDevice: videoDevice,
-        duration: 10)
+            printWithPrepend("showCursor: \(showCursor)")
+            printWithPrepend("highlightClicks: \(highlightClicks)")
+
+            printWithPrepend("hdEnabled: \(hdEnabled)")
+
+            printWithPrepend("camOnly: \(camOnly)")
+            printWithPrepend("Mute: \(mute)")
+
+            
+            if cropRect != CGRect.null {
+                width = Int(cropRect.width)
+            } else {
+                width = displayWidth
+            }
+            
+            if cropRect != CGRect.null {
+                height = Int(cropRect.height)
+            } else {
+                height = displayHeight
+            }
+            
+            // ensure we're not scaling past bounds of screen
+            if !camOnly, let modeRef = CGDisplayCopyDisplayMode(displayId) {
+                if width > modeRef.pixelWidth {
+                    width = modeRef.pixelWidth
+                    printWithPrepend("supplied width > screen bounds \(width) > \(modeRef.pixelWidth) - scaling back")
+                }
+                
+                if height > modeRef.pixelHeight {
+                    height = modeRef.pixelHeight
+                    printWithPrepend("supplied height > screen bounds \(height) > \(modeRef.pixelHeight) - scaling back")
+                }
+            }
+            
+            if width > 0 && height > 0 {
+                avgBitRate = getBitRateForNumPixels(width * height)
+            }
+            
+            let pulledVideoDeviceId = "FaceTime HD Camera (Built-in)"
+
+            if camOnly {
+                if let pulledVideoDevice = getCameraCaptureDeviceForElectronId(pulledVideoDeviceId) {
+                    videoDevice = pulledVideoDevice
+                }
+            } else {
+                videoDevice = nil
+            }
+            
+            if videoDevice != nil {
+                printWithPrepend("videoDevice: \(videoDevice!.localizedName)")
+            }
+            let pulledAudioDeviceId = "MacBook Pro Microphone"
+            if !mute {
+                if let pulledAudioDevice = getAudioDeviceForElectronId(pulledAudioDeviceId) {
+                    audioDevice = pulledAudioDevice
+                }
+            } else {
+                audioDevice = nil
+            }
+
+            if audioDevice != nil {
+                printWithPrepend("audioDevice: \(audioDevice!.localizedName)")
+            }
+            
+            recorder11 = try AMRecorder(outputPath: tempFile().path,
+                                        avgBitRate: avgBitRate,
+                                        fps: fps,
+                                        cropRect: cropRect,
+                                        height: height,
+                                        width: width,
+                                        showCursor: showCursor,
+                                        highlightClicks: highlightClicks,
+                                        displayID: displayId,
+                                        audioDevice: audioDevice,
+                                        videoDevice: videoDevice,
+                                        duration: durationSecond)
         }catch {
             printErr("Error" as! Error)
         }
         recorder11.onStart = {
-          printWithPrepend("[status:STRATED]")
-
+            if let printStr = self.dicToJSON(dic: ["status":"STRATED"]), printStr != ""{
+                print(printStr)
+            }
+            
         }
-
+        
         recorder11.onFinish = {
-            printWithPrepend("[status:END,totalChunks:\(self.recorder11.capture.counter-1)]")
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
+                if let printStr = self.dicToJSON(dic: ["status":"END","totalChunks":"\(self.recorder11.capture.counter-1)"]), printStr != ""{
+                    print(printStr)
+                }
+            }
         }
-
+        
         recorder11.onWrite = { (url: URL) -> Void in
-            printWithPrepend("[status:PROGRESS,chunkNumber:\(self.recorder11.capture.counter),location:\(url.path)]")
+            if let printStr = self.dicToJSON(dic: ["status":"PROGRESS","chunkNumber":"\(url.pathComponents.last?.dropLast(4) ?? "")","location":"\(url.path)"]), printStr != ""{
+                print(printStr)
+            }
         }
-
+        
         recorder11.onError = {(error:Error) -> Void in
             printWithPrepend("[status:ERROR]")
             self.recorder11 = nil
         }
 
         // Do any additional setup after loading the view.
+    }
+    func dicToJSON(dic:NSDictionary) -> String?{
+        if let theJSONData = try? JSONSerialization.data(
+            withJSONObject: dic,
+            options: []) {
+            let theJSONText = String(data: theJSONData,
+                                     encoding: .utf8)
+            return theJSONText ?? ""
+        }
+        return ""
     }
 
     override var representedObject: Any? {

@@ -257,6 +257,17 @@ func getCameraCaptureDeviceForElectronId(_ videoDeviceId: String) -> AVCaptureDe
   return AVCaptureDevice(uniqueID: pulledVideoDeviceId!)
 }
 
+func getAudioDeviceForElectronId(_ audioDeviceId: String) -> AVCaptureDevice? {
+  let pulledAudioDeviceArr = AVCaptureDevice.devices(for: AVMediaType.audio).filter { audioDeviceId.range(of: $0.localizedName) != nil }
+  var pulledAudioDeviceId: String?
+
+  if pulledAudioDeviceArr.isEmpty == false {
+    pulledAudioDeviceId = (pulledAudioDeviceArr.first?.uniqueID)!
+  }
+
+  return AVCaptureDevice(uniqueID: pulledAudioDeviceId!)
+}
+
 // MARK: - Misc
 func synchronized<T>(lock: AnyObject, closure: () throws -> T) rethrows -> T {
     objc_sync_enter(lock)
