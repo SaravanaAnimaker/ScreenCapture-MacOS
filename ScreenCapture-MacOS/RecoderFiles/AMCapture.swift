@@ -57,7 +57,7 @@ final class AMCapture : NSObject {
   fileprivate let height: Int
 
   var onStart: (() -> Void)?
-  var onStop: (() -> Void)?
+  var onStop: ((URL) -> Void)?
   var onError: ((Error) -> Void)?
   var onWrite: ((URL) -> Void)?
 
@@ -178,9 +178,9 @@ final class AMCapture : NSObject {
       }
     }
 
-    videoEncoder.onFinish = {
+    videoEncoder.onFinish = { (outputFileURL: URL) -> Void in
       printWithPrepend("VideoEncoder finished...")
-      self.onStop?()
+        self.onStop?(outputFileURL)
     }
 
     videoEncoder.onWrite = { (outputFileURL: URL) -> Void in

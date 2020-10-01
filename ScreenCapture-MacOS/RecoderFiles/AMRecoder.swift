@@ -26,7 +26,7 @@ class AMRecorder {
   let capture: AMCapture
 
   var onStart: (() -> Void)?
-  var onFinish: (() -> Void)?
+  var onFinish: ((URL) -> Void)?
   var onError: ((Error) -> Void)?
   var onWrite: ((URL) -> Void)?
 
@@ -112,9 +112,9 @@ class AMRecorder {
       self.onStart?()
     }
 
-    capture.onStop = { () -> Void in
+    capture.onStop = { (url: URL) -> Void in
       printWithPrepend("stopped recorder")
-      self.onFinish?()
+        self.onFinish?(url)
     }
 
     capture.onError = { (error: Error) -> Void in

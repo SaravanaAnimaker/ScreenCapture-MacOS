@@ -35,13 +35,14 @@ class AMScreenWriter {
   private var startTime: CMTime? = nil
   var hasEnded = false
   var stopping = false
+  var tempStopping = false
 
   // settings
   private var videoOutputSettings: [String: Any]
   private let audioOutputSettings: [String: Any]
 
   var onStart: (() -> Void)?
-  var onFinish: (() -> Void)?
+  var onFinish: ((URL) -> Void)?
   var onWrite: ((URL) -> Void)?
 
   init(_ width: Int,_ height: Int,_ avgBitRate: Int, fps: Int,recordInMono: Bool) {
@@ -94,7 +95,7 @@ class AMScreenWriter {
     if stopping {
       return
     }
-
+    self.tempStopping = false
     if currentAssetWriter != nil && queuedAssetWriter == nil {
       queuedUrl = url
       queuedAssetWriter = try AVAssetWriter(url: queuedUrl!, fileType: AVFileType.mp4)
@@ -154,6 +155,7 @@ class AMScreenWriter {
     
   func tempStopWriting()
   {
+    tempStopping = true
     let tmpUrl = self.currentUrl!
     currentAssetWriter!.endSession(atSourceTime: lastVideoEndTime)
     currentAssetWriter!.finishWriting { () -> Void in
@@ -173,13 +175,20 @@ class AMScreenWriter {
   }
   func stopWriting() {
     stopping = true
-    videoInputWriter!.markAsFinished()
-    audioInputWriter!.markAsFinished()
-    currentAssetWriter!.endSession(atSourceTime: lastVideoEndTime)
-    currentAssetWriter!.finishWriting { () -> Void in
-      self.hasEnded = true
-      self.onWrite?(self.currentUrl!)
-      self.onFinish?()
+    if !tempStopping
+    {
+        videoInputWriter!.markAsFinished()
+        audioInputWriter!.markAsFinished()
+        currentAssetWriter!.endSession(atSourceTime: lastVideoEndTime)
+        currentAssetWriter!.finishWriting { () -> Void in
+          self.hasEnded = true
+//          self.onWrite?(self.currentUrl!)
+          self.onFinish?(self.currentUrl!)
+        }
+    }
+    else{
+        self.hasEnded = true
+        self.onFinish?(self.currentUrl!)
     }
     currentAssetWriter = nil
     videoInputWriter = nil

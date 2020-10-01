@@ -247,7 +247,7 @@ func print(
 // MARK: -
 
 func getCameraCaptureDeviceForElectronId(_ videoDeviceId: String) -> AVCaptureDevice? {
-  let pulledVideoDeviceArr = AVCaptureDevice.devices(for: AVMediaType.video).filter { videoDeviceId.range(of: $0.localizedName) != nil }
+  let pulledVideoDeviceArr = AVCaptureDevice.devices(for: AVMediaType.video).filter { videoDeviceId.range(of: $0.uniqueID) != nil }
   var pulledVideoDeviceId: String?
 
   if pulledVideoDeviceArr.isEmpty == false {
@@ -258,7 +258,7 @@ func getCameraCaptureDeviceForElectronId(_ videoDeviceId: String) -> AVCaptureDe
 }
 
 func getAudioDeviceForElectronId(_ audioDeviceId: String) -> AVCaptureDevice? {
-  let pulledAudioDeviceArr = AVCaptureDevice.devices(for: AVMediaType.audio).filter { audioDeviceId.range(of: $0.localizedName) != nil }
+  let pulledAudioDeviceArr = AVCaptureDevice.devices(for: AVMediaType.audio).filter { audioDeviceId.range(of: $0.uniqueID) != nil }
   var pulledAudioDeviceId: String?
 
   if pulledAudioDeviceArr.isEmpty == false {

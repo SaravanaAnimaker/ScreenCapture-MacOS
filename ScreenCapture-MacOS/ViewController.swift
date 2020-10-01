@@ -55,7 +55,7 @@ class ViewController: NSViewController {
             //        }
             let displayId = CGMainDisplayID()
             let cropRect: CGRect = CGRect.null
-            let camOnly = false
+            let camOnly = true
             let mute = false
             let recordInMono = false
             let displayWidth = CGDisplayPixelsWide(displayId)
@@ -111,7 +111,7 @@ class ViewController: NSViewController {
                 avgBitRate = getBitRateForNumPixels(width * height)
             }
             
-            let pulledVideoDeviceId = "FaceTime HD Camera (Built-in)"
+            let pulledVideoDeviceId = "0x8020000005ac8514"
 
             if camOnly {
                 if let pulledVideoDevice = getCameraCaptureDeviceForElectronId(pulledVideoDeviceId) {
@@ -124,7 +124,7 @@ class ViewController: NSViewController {
             if videoDevice != nil {
                 printWithPrepend("videoDevice: \(videoDevice!.localizedName)")
             }
-            let pulledAudioDeviceId = "MacBook Pro Microphone"
+            let pulledAudioDeviceId = "BuiltInMicrophoneDevice"
             if !mute {
                 if let pulledAudioDevice = getAudioDeviceForElectronId(pulledAudioDeviceId) {
                     audioDevice = pulledAudioDevice
@@ -160,9 +160,9 @@ class ViewController: NSViewController {
             
         }
         
-        recorder11.onFinish = {
+        recorder11.onFinish = { (url: URL) -> Void in
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
-                if let printStr = self.dicToJSON(dic: ["status":"END","totalChunks":"\(self.recorder11.capture.counter-1)"]), printStr != ""{
+                if let printStr = self.dicToJSON(dic: ["status":"END","totalChunks":"\(self.recorder11.capture.counter-1)","location":"\(url.path)"]), printStr != ""{
                     print(printStr)
                 }
             }
