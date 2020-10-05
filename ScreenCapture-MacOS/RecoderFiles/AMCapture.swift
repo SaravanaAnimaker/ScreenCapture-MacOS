@@ -37,7 +37,7 @@ final class AMCapture : NSObject {
   // let the capturer know we should call onStop when the last
   // file comes through
   var stopping = false
-
+  var mute = false
   fileprivate let session: AVCaptureSession
 
   // assign the highest qos to these queues to ensure power is funneled
@@ -322,7 +322,9 @@ extension AMCapture: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
     if isVideoBuffer {
       videoEncoder.appendBuffer(bufferToWrite, isVideo: true)
     } else if isAudioBuffer {
-      videoEncoder.appendBuffer(bufferToWrite, isVideo: false)
+        if !mute{
+            videoEncoder.appendBuffer(bufferToWrite, isVideo: false)
+        }
     } else {
       printErr(AMRecorderError.unknownDataOutputType)
     }

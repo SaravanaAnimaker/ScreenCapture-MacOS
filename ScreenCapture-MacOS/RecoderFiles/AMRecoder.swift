@@ -47,6 +47,13 @@ class AMRecorder {
   func resume() {
     capture.resume()
   }
+    func mute() {
+      capture.mute = true
+    }
+
+    func unmute() {
+      capture.mute = false
+    }
 
   func stop() {
     stopping = true

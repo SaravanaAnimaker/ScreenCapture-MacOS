@@ -111,7 +111,7 @@ class ViewController: NSViewController {
                 avgBitRate = getBitRateForNumPixels(width * height)
             }
             
-            let pulledVideoDeviceId = "0x8020000005ac8514"
+            let pulledVideoDeviceId = "FaceTime HD Camera (Built-in)"
 
             if camOnly {
                 if let pulledVideoDevice = getCameraCaptureDeviceForElectronId(pulledVideoDeviceId) {
@@ -228,6 +228,12 @@ class ViewController: NSViewController {
     }
     @IBAction func actionResume(_ sender: Any) {
         recorder11.resume()
+    }
+    @IBAction func actionMute(_ sender: Any) {
+        recorder11.mute()
+    }
+    @IBAction func actionUnMute(_ sender: Any) {
+        recorder11.unmute()
     }
 
     @IBAction func action(_ sender: Any) {
