@@ -14,6 +14,7 @@ enum AMRecorderError: Error {
   case couldNotAddVideoInput
   case recordToNewEncoder
   case unknownDataOutputType
+  case couldNotInitializeEncoder
 }
 
 

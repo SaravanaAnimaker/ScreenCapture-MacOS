@@ -33,6 +33,9 @@ final class AMCapture : NSObject {
     var _timeOffset = CMTimeMake(0, 0)
     var _lastVideo = CMTimeMake(0, 0)
     var _lastAudio = CMTimeMake(0, 0)
+    // used for determining when to split files
+    // calculated by keeping sum of durations of incoming CMSampleBuffers
+    private var _durationForSplitting: Double = 0
 
   // let the capturer know we should call onStop when the last
   // file comes through
@@ -76,7 +79,8 @@ final class AMCapture : NSObject {
 
     self.urlIterator = directory
     counter = 0
-    
+    self._durationForSplitting = 0
+
     session = AVCaptureSession()
 
     if session.canAddInput(videoInput) {
@@ -154,15 +158,26 @@ final class AMCapture : NSObject {
   }
 
   @objc private func startRecordingToNext() {
-    let url = self.next(count: counter)
-    counter += 1
+//    let url = self.next(count: counter)
+//    counter += 1
+//    do {
+//      try videoEncoder.startWriting(url: url)
+//    } catch {
+//      self.onError?(AMRecorderError.recordToNewEncoder)
+//    }
+    // protect against this function potentially getting called multiple times
+    // from different threads
+    objc_sync_enter(self)
+    defer { objc_sync_exit(self) }
+    
+
     do {
-      try videoEncoder.startWriting(url: url)
+        try self.initNextVideoEncoder()
     } catch {
-      self.onError?(AMRecorderError.recordToNewEncoder)
+        self.onError?(AMRecorderError.recordToNewEncoder)
     }
 
-    createSegmentTimer()
+//    createSegmentTimer()
   }
 
   // it makes more sense for all of this logic to live in start, but
@@ -191,12 +206,24 @@ final class AMCapture : NSObject {
       self.session.startRunning()
     }
 
-    startRecordingToNext()
+//    startRecordingToNext()
+    do {
+        try self.initNextVideoEncoder()
+    } catch {
+        self.onError?(AMRecorderError.couldNotInitializeEncoder)
+    }
+
     _timeOffset = CMTimeMake(0, 0)
 
     // ensure this happens below the first initialization of the
     // video encoder in "startRecordingToNext"
   }
+    private func initNextVideoEncoder() throws {
+        let url = self.next(count: counter)
+        counter += 1
+
+        try videoEncoder.startWriting(url: url)
+    }
 
   public func start() {
     if isRecording {
@@ -205,7 +232,7 @@ final class AMCapture : NSObject {
 
     isRecording = true
 
-    createSegmentTimer()
+//    createSegmentTimer()
   }
 
   func stop() {
@@ -229,16 +256,16 @@ final class AMCapture : NSObject {
       return
     }
 
-    if let timer = segmentTimer {
-      timer.invalidate()
-    }
+//    if let timer = segmentTimer {
+//      timer.invalidate()
+//    }
 
     paused = true
-//    _discontinuedTimeOnResume = true
-    captureQueue.async { () -> Void in
-//      self.session.stopRunning()
-      self.videoEncoder.tempStopWriting()
-    }
+    _discontinuedTimeOnResume = true
+//    captureQueue.async { () -> Void in
+////      self.session.stopRunning()
+//      self.videoEncoder.tempStopWriting()
+//    }
 
     printWithPrepend("paused recorder")
   }
@@ -249,7 +276,7 @@ final class AMCapture : NSObject {
     }
     paused = false
 
-    startRecordingToNext()
+//    startRecordingToNext()
 
     printWithPrepend("resumed recorder")
   }
@@ -267,6 +294,7 @@ extension AMCapture: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
 
     let isVideoBuffer = output == videoOutput;
     let isAudioBuffer = output == audioOutput;
+    let videoOnlyOutput = audioOutput == nil
 
     // pause functionality inspired by:
     // http://www.gdcl.co.uk/2013/02/20/iPhone-Pause.html
@@ -320,15 +348,35 @@ extension AMCapture: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
     }
 
     if isVideoBuffer {
-      videoEncoder.appendBuffer(bufferToWrite, isVideo: true)
+        self.videoEncoder.appendBuffer(bufferToWrite, isVideo: true)
+            self._lastVideo = pts;
+        
+        if videoOnlyOutput {
+            self.determineToSplitToNextFile(dur: dur)
+        }
+
+//      videoEncoder.appendBuffer(bufferToWrite, isVideo: true)
     } else if isAudioBuffer {
         if !mute{
             videoEncoder.appendBuffer(bufferToWrite, isVideo: false)
+            self._lastAudio = pts;
+            self.determineToSplitToNextFile(dur: dur)
+
         }
     } else {
       printErr(AMRecorderError.unknownDataOutputType)
     }
   }
+    private func determineToSplitToNextFile(dur: CMTime) {
+        self._durationForSplitting = self._durationForSplitting + CMTimeGetSeconds(dur)
+        
+        if self._durationForSplitting > self.duration {
+            printWithPrepend("Splitting file from buffer \(self._durationForSplitting)")
+            
+            self._durationForSplitting = 0
+            startRecordingToNext()
+        }
+    }
 
   func captureOutput(_ output: AVCaptureOutput,
                      didDrop sampleBuffer: CMSampleBuffer,
