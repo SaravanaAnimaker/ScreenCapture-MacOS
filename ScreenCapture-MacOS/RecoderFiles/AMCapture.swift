@@ -295,16 +295,16 @@ extension AMCapture: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
     let isVideoBuffer = output == videoOutput;
     var isAudioBuffer = output == audioOutput;
     var videoOnlyOutput = audioOutput == nil
-//    if mute{
-//        isAudioBuffer = false
-//        videoOnlyOutput = true
-//    }
+    if mute{
+        isAudioBuffer = false
+        videoOnlyOutput = true
+    }
     print("Video : \(isVideoBuffer) Audio : \(isAudioBuffer)")
 
     // pause functionality inspired by:
     // http://www.gdcl.co.uk/2013/02/20/iPhone-Pause.html
     if _discontinuedTimeOnResume {
-      if isVideoBuffer {
+      if isVideoBuffer && !videoOnlyOutput{
         return
       }
       _discontinuedTimeOnResume = false
@@ -366,7 +366,6 @@ extension AMCapture: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
             videoEncoder.appendBuffer(bufferToWrite, isVideo: false)
             self._lastAudio = pts;
             self.determineToSplitToNextFile(dur: dur)
-
         }
     } else {
       printErr(AMRecorderError.unknownDataOutputType)

@@ -56,7 +56,7 @@ class ViewController: NSViewController {
             let displayId = CGMainDisplayID()
             let cropRect: CGRect = CGRect.null
             let camOnly = false
-            let mute = false
+            let mute = true
             let recordInMono = false
             let displayWidth = CGDisplayPixelsWide(displayId)
             let displayHeight = CGDisplayPixelsHigh(displayId)
@@ -155,6 +155,10 @@ class ViewController: NSViewController {
                                         audioDevice: audioDevice,
                                         videoDevice: videoDevice,
                                         duration: durationSecond)
+            
+            if mute{
+                recorder11.mute()
+            }
         }catch {
             printErr("Error" as! Error)
         }
