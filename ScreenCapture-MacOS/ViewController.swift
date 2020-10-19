@@ -55,7 +55,7 @@ class ViewController: NSViewController {
             //        }
             let displayId = CGMainDisplayID()
             let cropRect: CGRect = CGRect.null
-            let camOnly = true
+            let camOnly = false
             let mute = false
             let recordInMono = false
             let displayWidth = CGDisplayPixelsWide(displayId)
@@ -67,7 +67,8 @@ class ViewController: NSViewController {
             let hdEnabled = false
             var avgBitRate = 0
             let fps = 60
-            let durationSecond : Double = 10
+            let durationSecond : Double = 5
+            var isFlip = false
 
             var videoDevice = AVCaptureDevice.default(for: AVMediaType.video)
             var audioDevice = AVCaptureDevice.default(for: AVMediaType.audio)
@@ -84,13 +85,13 @@ class ViewController: NSViewController {
             
             if cropRect != CGRect.null {
                 width = Int(cropRect.width)
-            } else {
+            } else if !camOnly{
                 width = displayWidth
             }
             
             if cropRect != CGRect.null {
                 height = Int(cropRect.height)
-            } else {
+            } else if !camOnly{
                 height = displayHeight
             }
             
@@ -124,6 +125,9 @@ class ViewController: NSViewController {
             if videoDevice != nil {
                 printWithPrepend("videoDevice: \(videoDevice!.localizedName)")
             }
+            if isFlip{
+                isFlip = camOnly
+            }
             let pulledAudioDeviceId = "BuiltInMicrophoneDevice"
             if !mute {
                 if let pulledAudioDevice = getAudioDeviceForElectronId(pulledAudioDeviceId) {
@@ -146,6 +150,7 @@ class ViewController: NSViewController {
                                         showCursor: showCursor,
                                         highlightClicks: highlightClicks,
                                         recordInMono: recordInMono,
+                                        isFlip: isFlip,
                                         displayID: displayId,
                                         audioDevice: audioDevice,
                                         videoDevice: videoDevice,

@@ -36,7 +36,7 @@ class AMScreenWriter {
   var hasEnded = false
   var stopping = false
   var tempStopping = false
-
+  var isCamFlip = false
   // settings
   private var videoOutputSettings: [String: Any]
   private let audioOutputSettings: [String: Any]
@@ -45,7 +45,7 @@ class AMScreenWriter {
   var onFinish: ((URL) -> Void)?
   var onWrite: ((URL) -> Void)?
 
-  init(_ width: Int,_ height: Int,_ avgBitRate: Int, fps: Int,recordInMono: Bool) {
+  init(_ width: Int,_ height: Int,_ avgBitRate: Int, fps: Int,recordInMono: Bool, isFlip:Bool) {
     hasStarted = false
 
     videoOutputSettings = [
@@ -87,10 +87,58 @@ class AMScreenWriter {
 
     videoInputWriter = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoOutputSettings)
     videoInputWriter!.expectsMediaDataInRealTime = true
+    isCamFlip = isFlip
+    if isCamFlip{
+        self.flipVideo()
+    }
+
     audioInputWriter = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: audioOutputSettings)
     audioInputWriter!.expectsMediaDataInRealTime = true
   }
+    func flipVideo(){
+//        var transform: CGAffineTransform = CGAffineTransform(scaleX: -1.0, y: 1.0)
+//        transform = transform.rotated(by: CGFloat(Double.pi/2))
+//        
+//
+//        videoInputWriter!.transform = CGAffineTransform(rotationAngle: CGFloat((M_PI * -180.0)) / 180.0)
 
+        let currentTransform = videoInputWriter!.transform
+        let x:Int,y:Int
+        if currentTransform.a < 0 {
+            x = 1
+        }
+        else {
+            x = -1
+        }
+        if currentTransform.d < 0 {
+            y = -1
+        }
+        else {
+            y = 1
+        }
+        videoInputWriter!.transform = videoInputWriter!.transform.scaledBy(x: CGFloat(x), y: CGFloat(y))
+    }
+    func flipQueuedVideo(){
+//        var transform: CGAffineTransform = CGAffineTransform(scaleX: -1.0, y: 1.0)
+//        transform = transform.rotated(by: CGFloat(-Double.pi))
+//        queuedVideoInputWriter!.transform = CGAffineTransform(rotationAngle: CGFloat((M_PI * 0.0)) / 180.0)
+
+        let currentTransform = queuedVideoInputWriter!.transform
+        let x:Int,y:Int
+        if currentTransform.a < 0 {
+            x = 1
+        }
+        else {
+            x = -1
+        }
+        if currentTransform.d < 0 {
+            y = -1
+        }
+        else {
+            y = 1
+        }
+        queuedVideoInputWriter!.transform = queuedVideoInputWriter!.transform.scaledBy(x: CGFloat(x), y: CGFloat(y))
+    }
   func startWriting(url: URL) throws {
     if stopping {
       return
@@ -102,6 +150,9 @@ class AMScreenWriter {
       queuedAssetWriter!.shouldOptimizeForNetworkUse = true
       queuedVideoInputWriter = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoOutputSettings)
       queuedVideoInputWriter!.expectsMediaDataInRealTime = true
+        if isCamFlip{
+            self.flipQueuedVideo()
+        }
       queuedAudioInputWriter = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: audioOutputSettings)
       queuedAudioInputWriter!.expectsMediaDataInRealTime = true
       queuedAssetWriter!.add(queuedVideoInputWriter!)
@@ -125,6 +176,9 @@ class AMScreenWriter {
     if videoInputWriter == nil{
         videoInputWriter = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoOutputSettings)
         videoInputWriter!.expectsMediaDataInRealTime = true
+        if isCamFlip{
+            self.flipVideo()
+        }
         currentAssetWriter!.add(videoInputWriter!)
     }
     else if currentAssetWriter!.canAdd(videoInputWriter!) {

@@ -68,6 +68,7 @@ final class AMCapture : NSObject {
               videoInput: AVCaptureInput,
               avgBitRate: Int,
               recordInMono: Bool,
+              isFlip:Bool,
               fps: Int,
               width: Int,
               height: Int,
@@ -129,7 +130,7 @@ final class AMCapture : NSObject {
       throw AMRecorderError.couldNotAddOutput
     }
 
-    videoEncoder = AMScreenWriter(width, height, avgBitRate, fps: fps,recordInMono: recordInMono)
+    videoEncoder = AMScreenWriter(width, height, avgBitRate, fps: fps,recordInMono: recordInMono,isFlip: isFlip)
 
     defer {
       audioOutput?.setSampleBufferDelegate(self, queue: captureQueue)
@@ -291,10 +292,14 @@ extension AMCapture: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
     if !sampleBuffer.ready || !isRecording || paused {
       return
     }
-
     let isVideoBuffer = output == videoOutput;
-    let isAudioBuffer = output == audioOutput;
-    let videoOnlyOutput = audioOutput == nil
+    var isAudioBuffer = output == audioOutput;
+    var videoOnlyOutput = audioOutput == nil
+//    if mute{
+//        isAudioBuffer = false
+//        videoOnlyOutput = true
+//    }
+    print("Video : \(isVideoBuffer) Audio : \(isAudioBuffer)")
 
     // pause functionality inspired by:
     // http://www.gdcl.co.uk/2013/02/20/iPhone-Pause.html
