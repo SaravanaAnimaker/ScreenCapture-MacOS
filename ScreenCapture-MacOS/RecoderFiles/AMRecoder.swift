@@ -49,11 +49,11 @@ class AMRecorder {
     capture.resume()
   }
     func mute() {
-      capture.mute = true
+        capture.captureMute()
     }
 
     func unmute() {
-      capture.mute = false
+        capture.captureUnMute()
     }
 
   func stop() {

@@ -56,7 +56,7 @@ class ViewController: NSViewController {
             let displayId = CGMainDisplayID()
             let cropRect: CGRect = CGRect.null
             let camOnly = false
-            let mute = true
+            let mute = false
             let recordInMono = false
             let displayWidth = CGDisplayPixelsWide(displayId)
             let displayHeight = CGDisplayPixelsHigh(displayId)

@@ -30,6 +30,8 @@ final class AMCapture : NSObject {
   // pause/resume state
   var paused = false
   private var _discontinuedTimeOnResume = false
+    private var _discontinuedMute = false
+    
     var _timeOffset = CMTimeMake(0, 0)
     var _lastVideo = CMTimeMake(0, 0)
     var _lastAudio = CMTimeMake(0, 0)
@@ -154,7 +156,10 @@ final class AMCapture : NSObject {
     }
   }
   func next(count:Int) -> URL{
-    let component = "\(count).mp4"
+    var component = "\(count).mp4"
+    if mute{
+        component = "\(count)-M.mp4"
+    }
     return self.urlIterator.appendingPathComponent(component)
   }
 
@@ -251,6 +256,23 @@ final class AMCapture : NSObject {
       self.videoEncoder.stopWriting()
     }
   }
+    func captureMute() {
+        if !isRecording || audioOutput == nil{
+            return
+        }
+        mute = true
+
+        _discontinuedMute = true
+
+    }
+    func captureUnMute() {
+        if !isRecording || audioOutput == nil {
+            return
+        }
+        mute = false
+
+        _discontinuedMute = true
+    }
 
   func pause() {
     if !isRecording || paused {
@@ -295,11 +317,11 @@ extension AMCapture: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
     let isVideoBuffer = output == videoOutput;
     var isAudioBuffer = output == audioOutput;
     var videoOnlyOutput = audioOutput == nil
-    if mute{
-        isAudioBuffer = false
-        videoOnlyOutput = true
-    }
-    print("Video : \(isVideoBuffer) Audio : \(isAudioBuffer)")
+//    if mute{
+//        isAudioBuffer = false
+//        videoOnlyOutput = true
+//    }
+//    print("Video : \(isVideoBuffer) Audio : \(isAudioBuffer)")
 
     // pause functionality inspired by:
     // http://www.gdcl.co.uk/2013/02/20/iPhone-Pause.html
@@ -362,11 +384,11 @@ extension AMCapture: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
 
 //      videoEncoder.appendBuffer(bufferToWrite, isVideo: true)
     } else if isAudioBuffer {
-        if !mute{
+//        if !mute{
             videoEncoder.appendBuffer(bufferToWrite, isVideo: false)
             self._lastAudio = pts;
             self.determineToSplitToNextFile(dur: dur)
-        }
+//        }
     } else {
       printErr(AMRecorderError.unknownDataOutputType)
     }
@@ -374,7 +396,13 @@ extension AMCapture: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
     private func determineToSplitToNextFile(dur: CMTime) {
         self._durationForSplitting = self._durationForSplitting + CMTimeGetSeconds(dur)
         
-        if self._durationForSplitting > self.duration {
+        if _discontinuedMute && self._durationForSplitting > 0.1{
+            printWithPrepend("Splitting file from buffer \(self._durationForSplitting)")
+            _discontinuedMute = false
+            self._durationForSplitting = 0
+            startRecordingToNext()
+        }
+        else if self._durationForSplitting > self.duration {
             printWithPrepend("Splitting file from buffer \(self._durationForSplitting)")
             
             self._durationForSplitting = 0
