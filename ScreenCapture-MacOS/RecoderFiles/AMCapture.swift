@@ -71,6 +71,7 @@ final class AMCapture : NSObject {
               avgBitRate: Int,
               recordInMono: Bool,
               isFlip:Bool,
+              isMute:Bool,
               fps: Int,
               width: Int,
               height: Int,
@@ -138,7 +139,10 @@ final class AMCapture : NSObject {
       audioOutput?.setSampleBufferDelegate(self, queue: captureQueue)
       videoOutput.setSampleBufferDelegate(self, queue: captureQueue)
     }
+    if isMute{
+        mute = true
 
+    }
     session.commitConfiguration()
 
     super.init()
@@ -257,7 +261,7 @@ final class AMCapture : NSObject {
     }
   }
     func captureMute() {
-        if !isRecording || audioOutput == nil{
+        if audioOutput == nil{
             return
         }
         mute = true
@@ -266,7 +270,7 @@ final class AMCapture : NSObject {
 
     }
     func captureUnMute() {
-        if !isRecording || audioOutput == nil {
+        if audioOutput == nil {
             return
         }
         mute = false
